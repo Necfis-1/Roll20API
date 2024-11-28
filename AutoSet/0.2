@@ -1,0 +1,43 @@
+var CONFIG = [
+    {barId: 3, barRatio: .5, status: "half-heart", whenLow: true, whenHigh: false},
+    {barId: 3, barRatio: .33, status: "red", whenLow: true, whenHigh: false},
+    {barId: 3, barRatio: .1, status: "broken-heart", whenLow: true, whenHigh: false},
+    {barId: 3, barRatio: 0, status: "skull", whenLow: true, whenHigh: false},
+    {barId: 3, barRatio: 1.0001, status: "Charmed::243177", whenLow: false, whenHigh: true}];
+ 
+on("change:graphic", function(obj) {
+    CONFIG.forEach(function(opts) {
+        var maxValue = parseInt(obj.get("bar" + opts.barId + "_max"));
+        var curValue = parseInt(obj.get("bar" + opts.barId + "_value"));
+        var idValue = obj.get("_id");
+        //log(opts.barId + ": " + curValue + "/" + maxValue);
+    
+        if (maxValue != NaN && curValue != NaN) {
+            var markerName = opts.status;
+            if (curValue <= (maxValue * opts.barRatio)) {
+                outputMessage = 0;
+                if (opts.whenLow)
+                    outputMessage = `!token-mod --ids ${idValue} --set statusmarkers|${markerName}`;
+                else
+                    outputMessage = `!token-mod --ids ${idValue} --set statusmarkers|-${markerName}`;
+                sendChat("API",outputMessage);
+            }
+            else 
+            {
+                if (curValue >= (maxValue * opts.barRatio)) {
+                    if (opts.whenHigh)
+                        outputMessage = `!token-mod --ids ${idValue} --set statusmarkers|${markerName}`;
+                    else
+                        outputMessage = `!token-mod --ids ${idValue} --set statusmarkers|-${markerName}`;
+                    sendChat("API",outputMessage);
+                }
+                else {
+                    outputMessage = `!token-mod --ids ${idValue} --set statusmarkers|-${markerName}`;
+                    sendChat("API",outputMessage);
+                }
+                
+            }
+        
+        }
+    });
+});
